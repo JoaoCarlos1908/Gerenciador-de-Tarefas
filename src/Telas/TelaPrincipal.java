@@ -1,7 +1,6 @@
 package Telas;
 
 import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import Classes.GerenciadorDeTarefas;
 
@@ -105,7 +104,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        //gerenciarTarefas.listarTarefas();
+        gerenciarTarefas.listarTarefas();
     }//GEN-LAST:event_formWindowOpened
 
   

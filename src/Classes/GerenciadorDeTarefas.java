@@ -11,18 +11,15 @@ import javax.swing.JPanel;
 
 public class GerenciadorDeTarefas {
     //Atributos
-    private ArrayList<Tarefa> tarefas;
     private TarefaDAO tarefaDAO;
     private JPanel jplBotoes;
     private JPanel painelPrincipal;
-    ViewTarefa viewTarefa;
     
     //Construtor
     
     public GerenciadorDeTarefas(JPanel jplBotoes, JPanel painelPrincipal){
         this.jplBotoes = jplBotoes;
         this.painelPrincipal = painelPrincipal;
-        viewTarefa = new ViewTarefa(jplBotoes, painelPrincipal);
     }
     
     //Metodos
@@ -63,43 +60,43 @@ public class GerenciadorDeTarefas {
         tarefaDAO.adicionarTarefa(tarefa);
     }
     
-    public void listarTarefas() {
+    public void listarTarefas(){
+        TarefaDAO daoTarefa = new TarefaDAO();
+
+        // Obtém a lista de tarefas
+        ArrayList<Tarefa> tarefas = daoTarefa.listarTarefas(); // Método que busca as tarefas
         try {
             // Limpa os componentes do painel principal antes de adicionar novos
             painelPrincipal.removeAll();
             painelPrincipal.revalidate();
             painelPrincipal.repaint();
 
-            // Obtém a lista de tarefas
-            ArrayList<Tarefa> tarefas = tarefaDAO.listarTarefas(); // Método que busca as tarefas
-        
             // Adiciona cada tarefa como um JPanel ao painel principal
-            for (Tarefa tarefa : tarefas) {
+            for (int i = 0; i < tarefas.size(); i++) {
                 // Cria um painel para representar a tarefa
+                ViewTarefa viewTarefa = new ViewTarefa(jplBotoes, painelPrincipal);
                 
-            
                 // Define informações da tarefa no painel
-                viewTarefa.setTxtTitulo(tarefa.getTitulo());
-                viewTarefa.setDescricao(tarefa.getDescricao());
-                viewTarefa.setPrioridade(tarefa.getPrioridade());
-                viewTarefa.setdata(tarefa.getPrazo());
+                viewTarefa.setTxtTitulo(tarefas.get(i).getTitulo());
+                viewTarefa.setDescricao(tarefas.get(i).getDescricao());
+                viewTarefa.setPrioridade(tarefas.get(i).getPrioridade());
+                viewTarefa.setdata(tarefas.get(i).getPrazo());
 
                 // Define um identificador único para o painel
-                viewTarefa.setName(Integer.toString(tarefa.getId()));
+                viewTarefa.setName(Integer.toString(tarefas.get(i).getId()));
 
                 // Adiciona o painel ao painel principal
                 painelPrincipal.add(viewTarefa);
             }
 
-            // Atualiza o layout do painel principal após adicionar os componentes
-            painelPrincipal.revalidate();
-            painelPrincipal.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Erro ao listar tarefas: " + e.getMessage());
             e.printStackTrace();
         }
+        // Atualiza o layout do painel principal após adicionar os componentes
+        painelPrincipal.revalidate();
+        painelPrincipal.repaint();
     }
-
     
     public void listarTarefas(ArrayList<Tarefa> tarefas){}
     
