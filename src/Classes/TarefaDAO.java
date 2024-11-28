@@ -14,17 +14,10 @@ public class TarefaDAO {
     private PreparedStatement stmt;
     private ResultSet rs;
     
-    //Contrutor
-
-    public TarefaDAO() {
-        con = ConnectionTarefas.getConnection();
-        PreparedStatement stmt = null;
-    }
-    
-    
     //Metodos
     public void adicionarTarefa(Tarefa tarefa){//create
         try {
+            con = ConnectionTarefas.getConnection();
             stmt = con.prepareStatement("INSERT INTO tarefas(titulo, descricao, prioridade, prazo)VALUES(?,?,?,?)");
         
             stmt.setString(1, tarefa.getTitulo());
@@ -42,10 +35,10 @@ public class TarefaDAO {
         }
     }
     
-    public void remover(Tarefa tarefa) {
+     public void remover(Tarefa tarefa) {
         try {
             // Obter a conexão (substitua pelo seu método de conexão)
-
+            con = ConnectionTarefas.getConnection();
             // Preparar a instrução SQL para deletar a tarefa pelo ID
             String sql = "DELETE FROM tarefas WHERE id = ?";
             stmt = con.prepareStatement(sql);
@@ -58,7 +51,7 @@ public class TarefaDAO {
 
             // Feedback para o usuário
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(null, "Tarefa removida com sucesso!");
+            
             } else {
                 JOptionPane.showMessageDialog(null, "Nenhuma tarefa encontrada com o ID especificado.");
             }
@@ -68,7 +61,9 @@ public class TarefaDAO {
             // Fechar a conexão e a declaração
             ConnectionTarefas.closerConnection(con, stmt);
         }
+        this.listarTarefas();
     }
+
 
     
     public void editar(Tarefa tarefa, Boolean estado) {
@@ -112,6 +107,7 @@ public class TarefaDAO {
         ArrayList<Tarefa> tarefas = new ArrayList<>();
         
         try {
+            con = ConnectionTarefas.getConnection();
             stmt = con.prepareStatement(sql);
             rs = stmt.executeQuery();
             
@@ -143,7 +139,7 @@ public class TarefaDAO {
     public ArrayList<Tarefa> buscarTarefasPorTexto(String textoPesquisa){
         ArrayList<Tarefa> tarefas = new ArrayList<>();
         String sql = "SELECT * FROM tarefas WHERE titulo LIKE ? OR descricao LIKE ?";
-        
+        con = ConnectionTarefas.getConnection();
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             // Adiciona os parâmetros com curinga para busca aproximada
             String textoBusca = "%" + textoPesquisa + "%";

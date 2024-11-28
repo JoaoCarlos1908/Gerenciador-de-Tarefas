@@ -14,10 +14,12 @@ public class Tarefa {
     //Construtor
 
     public Tarefa() {
+        this.id = 0;
         this.titulo = "Titulo";
         this.descricao = "Descrição";
         this.prioridade = Color.GREEN;
         this.prazo = "00/00/00";
+        this.concluido = false;
     }
     
     

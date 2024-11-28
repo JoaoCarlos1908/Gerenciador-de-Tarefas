@@ -40,21 +40,50 @@ public class GerenciadorDeTarefas {
       
     }
     
-    public void remover(){
-        ArrayList<ViewTarefa> tarefasParaRemover = this.checkBox();
-        //Remove os componentes marcados na lista de remoção
-        for (ViewTarefa tarefaV : tarefasParaRemover) {
-            Tarefa tarefa = new Tarefa();
-            tarefa.setId(Integer.parseInt(tarefaV.getName()));
-        
-            tarefaDAO.remover(tarefa);
-        }
+    public void remover() {
+    // Obtém a lista de tarefas marcadas para remoção
+    ArrayList<ViewTarefa> tarefasParaRemover = this.checkBox();
 
-        // Revalida e repinta o painel para refletir as mudanças
+    // Confirmação para o usuário
+    int confirmacao = JOptionPane.showConfirmDialog(
+        null,
+        "Você tem certeza que deseja remover as tarefas selecionadas?",
+        "Confirmar Remoção",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmacao == JOptionPane.YES_OPTION) {
+        for (ViewTarefa tarefaV : tarefasParaRemover) {
+            try {
+                // Cria o objeto Tarefa com base nos dados da ViewTarefa
+                Tarefa tarefa = new Tarefa();
+                tarefa.setId(Integer.parseInt(tarefaV.getName()));
+
+                // Remove a tarefa do banco de dados
+                TarefaDAO daoTarefa = new TarefaDAO();
+                daoTarefa.remover(tarefa);
+                this.listarTarefas();
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Erro ao remover a tarefa: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+                        
+                );
+            }
+        }
+        // Feedback de sucesso
+        JOptionPane.showMessageDialog(null, "Tarefas removidas com sucesso!");
+            
+        // Atualiza o layout do painel principal após as remoções
         painelPrincipal.revalidate();
         painelPrincipal.repaint();
-        
+
     }
+}
+
     
     public void editar(Tarefa tarefa){
         tarefaDAO.adicionarTarefa(tarefa);
@@ -98,7 +127,39 @@ public class GerenciadorDeTarefas {
         painelPrincipal.repaint();
     }
     
-    public void listarTarefas(ArrayList<Tarefa> tarefas){}
+    public void listarTarefas(ArrayList<Tarefa> tarefas){
+        try {
+            // Limpa os componentes do painel principal antes de adicionar novos
+            painelPrincipal.removeAll();
+            painelPrincipal.revalidate();
+            painelPrincipal.repaint();
+
+            // Adiciona cada tarefa como um JPanel ao painel principal
+            for (int i = 0; i < tarefas.size(); i++) {
+                // Cria um painel para representar a tarefa
+                ViewTarefa viewTarefa = new ViewTarefa(jplBotoes, painelPrincipal);
+                
+                // Define informações da tarefa no painel
+                viewTarefa.setTxtTitulo(tarefas.get(i).getTitulo());
+                viewTarefa.setDescricao(tarefas.get(i).getDescricao());
+                viewTarefa.setPrioridade(tarefas.get(i).getPrioridade());
+                viewTarefa.setdata(tarefas.get(i).getPrazo());
+
+                // Define um identificador único para o painel
+                viewTarefa.setName(Integer.toString(tarefas.get(i).getId()));
+
+                // Adiciona o painel ao painel principal
+                painelPrincipal.add(viewTarefa);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao listar tarefas: " + e.getMessage());
+            e.printStackTrace();
+        }
+        // Atualiza o layout do painel principal após adicionar os componentes
+        painelPrincipal.revalidate();
+        painelPrincipal.repaint();
+    }
     
     public ArrayList<ViewTarefa> checkBox(){
        // Cria uma lista para armazenar os componentes que precisam ser removidos
@@ -145,12 +206,13 @@ public class GerenciadorDeTarefas {
                             JCheckBox checkBox = (JCheckBox) childComponent;
                             if (checkBox.isSelected()) {
                                 checkBoxSelecionado = true; // Marcar que pelo menos um JCheckBox está selecionado
-                                break; // Não precisa verificar mais checkboxes
+                                return true;
                             }
                         }
                     }
             }
         }
+        
         return false;
     }
     
