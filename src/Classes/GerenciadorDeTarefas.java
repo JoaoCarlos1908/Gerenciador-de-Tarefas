@@ -1,6 +1,8 @@
 package Classes;
 
 import Telas.ViewTarefa;
+import Telas.btnInicial;
+import Telas.btnVisualizar;
 import Telas.editarVisualizar;
 import java.awt.Color;
 import java.awt.Component;
@@ -11,7 +13,6 @@ import javax.swing.JPanel;
 
 public class GerenciadorDeTarefas {
     //Atributos
-    private TarefaDAO tarefaDAO;
     private JPanel jplBotoes;
     private JPanel painelPrincipal;
     
@@ -31,62 +32,83 @@ public class GerenciadorDeTarefas {
         tarefa.setDescricao(edAd.getDescricao());
         tarefa.setPrazo(edAd.getData());
         tarefa.setPrioridade(edAd.getColorPrioridade());
-      
-        if(tarefa.getId() >= -1){
-            tarefaDAO.adicionarTarefa(tarefa);
+        
+        if(tarefa.getId() <= 0){
+            TarefaDAO daoTarefa = new TarefaDAO();
+            daoTarefa.adicionarTarefa(tarefa);
+            this.listarTarefas();
         }else{
             this.editar(tarefa);
         }
-      
     }
     
     public void remover() {
-    // Obtém a lista de tarefas marcadas para remoção
-    ArrayList<ViewTarefa> tarefasParaRemover = this.checkBox();
+        // Obtém a lista de tarefas marcadas para remoção
+        ArrayList<Tarefa> tarefasParaRemover = this.checkBox();
 
-    // Confirmação para o usuário
-    int confirmacao = JOptionPane.showConfirmDialog(
+        // Confirmação para o usuário
+        int confirmacao = JOptionPane.showConfirmDialog(
         null,
         "Você tem certeza que deseja remover as tarefas selecionadas?",
         "Confirmar Remoção",
-        JOptionPane.YES_NO_OPTION
-    );
+        JOptionPane.YES_NO_OPTION);
 
-    if (confirmacao == JOptionPane.YES_OPTION) {
-        for (ViewTarefa tarefaV : tarefasParaRemover) {
-            try {
-                // Cria o objeto Tarefa com base nos dados da ViewTarefa
-                Tarefa tarefa = new Tarefa();
-                tarefa.setId(Integer.parseInt(tarefaV.getName()));
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            // Instancia o DAO apenas uma vez
+            TarefaDAO daoTarefa = new TarefaDAO();
 
-                // Remove a tarefa do banco de dados
-                TarefaDAO daoTarefa = new TarefaDAO();
-                daoTarefa.remover(tarefa);
-                this.listarTarefas();
+            // Flag para rastrear se ocorreu algum erro
+            boolean erroOcorrido = false;
 
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(
+            for (Tarefa tarefa : tarefasParaRemover) {
+                try {
+                    // Remove a tarefa do banco de dados
+                    daoTarefa.remover(tarefa);
+                } catch (Exception e) {
+                    // Exibe uma mensagem de erro específica para a tarefa
+                    JOptionPane.showMessageDialog(
                     null,
-                    "Erro ao remover a tarefa: " + e.getMessage(),
+                    "Erro ao remover a tarefa com ID " + tarefa.getId() + ": " + e.getMessage(),
                     "Erro",
-                    JOptionPane.ERROR_MESSAGE
-                        
-                );
+                    JOptionPane.ERROR_MESSAGE);
+                    erroOcorrido = true;
+                }
             }
+
+            // Feedback final com base no resultado
+            if (erroOcorrido) {
+                JOptionPane.showMessageDialog(
+                null,
+                "Algumas tarefas não puderam ser removidas. Verifique os erros exibidos.",
+                "Aviso",
+                JOptionPane.WARNING_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(
+                null,
+                "Tarefas removidas com sucesso!",
+                "Sucesso",
+                JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            // Atualiza a lista de tarefas e o layout do painel
+            this.listarTarefas();
+            painelPrincipal.revalidate();
+            painelPrincipal.repaint();
         }
-        // Feedback de sucesso
-        JOptionPane.showMessageDialog(null, "Tarefas removidas com sucesso!");
-            
-        // Atualiza o layout do painel principal após as remoções
-        painelPrincipal.revalidate();
-        painelPrincipal.repaint();
-
     }
-}
 
-    
+
     public void editar(Tarefa tarefa){
-        tarefaDAO.adicionarTarefa(tarefa);
+        TarefaDAO daoTarefa = new TarefaDAO();
+        daoTarefa.editar(tarefa, true);
+        // Exibe mensagem de sucesso
+        JOptionPane.showMessageDialog(null, "Tarefa editada com sucesso!");
+        this.listarTarefas();
+    }
+    
+    public void editarCor(Tarefa tarefa){
+        TarefaDAO daoTarefa = new TarefaDAO();
+        daoTarefa.editar(tarefa, true);
     }
     
     public void listarTarefas(){
@@ -97,8 +119,7 @@ public class GerenciadorDeTarefas {
         try {
             // Limpa os componentes do painel principal antes de adicionar novos
             painelPrincipal.removeAll();
-            painelPrincipal.revalidate();
-            painelPrincipal.repaint();
+            jplBotoes.removeAll();
 
             // Adiciona cada tarefa como um JPanel ao painel principal
             for (int i = 0; i < tarefas.size(); i++) {
@@ -116,6 +137,7 @@ public class GerenciadorDeTarefas {
 
                 // Adiciona o painel ao painel principal
                 painelPrincipal.add(viewTarefa);
+                
             }
 
         } catch (Exception e) {
@@ -125,6 +147,11 @@ public class GerenciadorDeTarefas {
         // Atualiza o layout do painel principal após adicionar os componentes
         painelPrincipal.revalidate();
         painelPrincipal.repaint();
+        
+        btnInicial btn = new btnInicial(painelPrincipal, jplBotoes);
+        jplBotoes.add(btn);
+        jplBotoes.revalidate();
+        jplBotoes.repaint();
     }
     
     public void listarTarefas(ArrayList<Tarefa> tarefas){
@@ -161,36 +188,40 @@ public class GerenciadorDeTarefas {
         painelPrincipal.repaint();
     }
     
-    public ArrayList<ViewTarefa> checkBox(){
-       // Cria uma lista para armazenar os componentes que precisam ser removidos
-        ArrayList<ViewTarefa> tarefasParaRemover = new ArrayList<>();
+    public ArrayList<Tarefa> checkBox() {
+        // Cria uma lista para armazenar as tarefas selecionadas
+        ArrayList<Tarefa> tarefas = new ArrayList<>();
 
+        // Itera sobre os componentes do painel principal
         for (int i = 0; i < painelPrincipal.getComponentCount(); i++) {
             Component component = painelPrincipal.getComponent(i);
+
             if (component instanceof ViewTarefa) {
                 ViewTarefa viewTarefa = (ViewTarefa) component;
-                boolean checkBoxSelecionado = false;
 
-                // Itera sobre os componentes de viewTarefa para verificar se algum JCheckBox está selecionado
-                    for (int j = 0; j < viewTarefa.getComponentCount(); j++) {
-                        Component childComponent = viewTarefa.getComponent(j);
-                        if (childComponent instanceof JCheckBox) {
-                            JCheckBox checkBox = (JCheckBox) childComponent;
-                            if (checkBox.isSelected()) {
-                                checkBoxSelecionado = true; // Marcar que pelo menos um JCheckBox está selecionado
-                                break; // Não precisa verificar mais checkboxes
-                            }
+                // Itera sobre os componentes de ViewTarefa para verificar os JCheckBox
+                for (int j = 0; j < viewTarefa.getComponentCount(); j++) {
+                    Component childComponent = viewTarefa.getComponent(j);
+
+                    if (childComponent instanceof JCheckBox) {
+                        JCheckBox checkBox = (JCheckBox) childComponent;
+
+                        // Verifica se o JCheckBox está selecionado
+                        if (checkBox.isSelected()) {
+                            // Cria uma nova instância de Tarefa para cada tarefa selecionada
+                            Tarefa tarefa = new Tarefa();
+                            tarefa.setId(Integer.parseInt(viewTarefa.getName()));
+
+                            // Adiciona a nova tarefa à lista
+                            tarefas.add(tarefa);
                         }
                     }
-
-                // Se um checkbox foi selecionado, adiciona a viewTarefa à lista de remoção
-                if (checkBoxSelecionado) {
-                    tarefasParaRemover.add(viewTarefa);
-                } 
+                }
             }
         }
-        return tarefasParaRemover;
+        return tarefas;
     }
+
     
     public Boolean checkBoxAtivado(){
         for (int i = 0; i < painelPrincipal.getComponentCount(); i++) {
@@ -216,9 +247,44 @@ public class GerenciadorDeTarefas {
         return false;
     }
     
-    public void abrirTelaEdição(){}
-    public void abrirTelaEdição(JPanel ViewTarefa){}
-    public void altearCor(Color prioridade){}
+    public void abrirTelaEdição(){
+        ViewTarefa view = new ViewTarefa(jplBotoes, painelPrincipal);
+        this.abrirTelaEdição(view);
+    }
+    
+    public void abrirTelaEdição(ViewTarefa view){
+        editarVisualizar edit = new editarVisualizar(jplBotoes, painelPrincipal);
+        btnVisualizar btn = new btnVisualizar(painelPrincipal,  jplBotoes,  edit);
+        
+        painelPrincipal.removeAll();
+        jplBotoes.removeAll();
+        
+        edit.setName(view.getName());
+        edit.setTitulo(view.getTitulo());
+        edit.setDescricao(view.getDescricao());
+        edit.setData(view.getData());
+        edit.setColorPrioridade(view.getPrioridade());
+        
+        painelPrincipal.add(edit);
+        painelPrincipal.revalidate();
+        painelPrincipal.repaint();
+        
+        jplBotoes.add(btn);
+        jplBotoes.revalidate();
+        jplBotoes.repaint();
+    }
+    
+    public void altearCor(Color prioridade){
+        ArrayList<Tarefa> tarefas = new ArrayList<Tarefa>();
+        tarefas = this.checkBox();
+        for(Tarefa tarefa: tarefas){
+            tarefa.setPrioridade(prioridade);
+            this.editarCor(tarefa);
+        }
+        // Exibe mensagem de sucesso
+        JOptionPane.showMessageDialog(null, "Tarefa editada com sucesso!");
+        this.listarTarefas();
+    }
     
     public ArrayList<Tarefa> reorganizarTarefas(){
         return null;

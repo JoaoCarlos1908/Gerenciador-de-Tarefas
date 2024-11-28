@@ -36,7 +36,7 @@ public class TarefaDAO {
     }
     
      public void remover(Tarefa tarefa) {
-        try {
+         try {
             // Obter a conexão (substitua pelo seu método de conexão)
             con = ConnectionTarefas.getConnection();
             // Preparar a instrução SQL para deletar a tarefa pelo ID
@@ -51,7 +51,7 @@ public class TarefaDAO {
 
             // Feedback para o usuário
             if (rowsAffected > 0) {
-            
+                 
             } else {
                 JOptionPane.showMessageDialog(null, "Nenhuma tarefa encontrada com o ID especificado.");
             }
@@ -68,9 +68,12 @@ public class TarefaDAO {
     
     public void editar(Tarefa tarefa, Boolean estado) {
         try {
+            // Obter a conexão (substitua pelo seu método de conexão)
+            con = ConnectionTarefas.getConnection();
+            // Query SQL para atualizar a tarefa existente
+            String sql = "UPDATE tarefas SET titulo = ?, descricao = ?, prioridade = ?, prazo = ?, concluido = ? WHERE id = ?";
+            
             if (estado) {
-                // Query SQL para atualizar a tarefa existente
-                String sql = "UPDATE tarefas SET titulo = ?, descricao = ?, prioridade = ?, prazo = ?, concluido = ? WHERE id = ?";
                 stmt = con.prepareStatement(sql);
 
                 // Preenchendo os parâmetros da query
@@ -87,8 +90,6 @@ public class TarefaDAO {
                 // Executa a query
                 stmt.executeUpdate();
             
-                // Exibe mensagem de sucesso
-                JOptionPane.showMessageDialog(null, "Tarefa editada com sucesso!");
             } else {
                 // Chama o método responsável por adicionar uma nova tarefa
                 this.adicionarTarefa(tarefa);

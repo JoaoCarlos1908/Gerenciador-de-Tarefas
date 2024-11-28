@@ -4,7 +4,6 @@ package Telas;
 import java.awt.Color;
 import javax.swing.JPanel;
 import Classes.GerenciadorDeTarefas;
-import javax.swing.JOptionPane;
 
 public class ViewTarefa extends javax.swing.JPanel {
 
@@ -30,6 +29,12 @@ public class ViewTarefa extends javax.swing.JPanel {
         
         editarBtn = new btnEditar(painelPrincipal, jplBotoes);
         iniciarBtn = new btnInicial(painelPrincipal, jplBotoes);
+        
+        this.setName(Integer.toString(-1));
+        this.setTxtTitulo("");
+        this.setDescricao("");
+        this.setdata("");
+        this.setPrioridade(Color.GREEN);
     }
     public void alterarJLabel(int x){
     }
