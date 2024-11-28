@@ -14,10 +14,17 @@ public class TarefaDAO {
     private PreparedStatement stmt;
     private ResultSet rs;
     
+    //Contrutor
+
+    public TarefaDAO() {
+        con = ConnectionTarefas.getConnection();
+        PreparedStatement stmt = null;
+    }
+    
+    
     //Metodos
     public void adicionarTarefa(Tarefa tarefa){//create
         try {
-            con = ConnectionTarefas.getConnection();
             stmt = con.prepareStatement("INSERT INTO tarefas(titulo, descricao, prioridade, prazo)VALUES(?,?,?,?)");
         
             stmt.setString(1, tarefa.getTitulo());
@@ -36,12 +43,8 @@ public class TarefaDAO {
     }
     
     public void remover(Tarefa tarefa) {
-        PreparedStatement stmt = null;
-        Connection con = null;
-
         try {
             // Obter a conexão (substitua pelo seu método de conexão)
-            con = ConnectionTarefas.getConnection();
 
             // Preparar a instrução SQL para deletar a tarefa pelo ID
             String sql = "DELETE FROM tarefas WHERE id = ?";
@@ -69,14 +72,8 @@ public class TarefaDAO {
 
     
     public void editar(Tarefa tarefa, Boolean estado) {
-        PreparedStatement stmt = null;
-        Connection con = null;
-
         try {
             if (estado) {
-                // Conexão com o banco de dados
-                con = ConnectionTarefas.getConnection();
-
                 // Query SQL para atualizar a tarefa existente
                 String sql = "UPDATE tarefas SET titulo = ?, descricao = ?, prioridade = ?, prazo = ?, concluido = ? WHERE id = ?";
                 stmt = con.prepareStatement(sql);
@@ -111,13 +108,13 @@ public class TarefaDAO {
     }   
 
     public ArrayList<Tarefa> listarTarefas() {
-        ArrayList<Tarefa> tarefas = new ArrayList<>();
         String sql = "SELECT * FROM tarefas";
-    
+        ArrayList<Tarefa> tarefas = new ArrayList<>();
+        
         try {
             stmt = con.prepareStatement(sql);
             rs = stmt.executeQuery();
-        
+            
             while (rs.next()) {
                 Tarefa tarefa = new Tarefa();
                 tarefa.setId(rs.getInt("id"));
