@@ -14,7 +14,7 @@ public class Tarefa {
     //Construtor
 
     public Tarefa() {
-        this.id = 0;
+        this.id = -1;
         this.titulo = "Titulo";
         this.descricao = "Descrição";
         this.prioridade = Color.GREEN;

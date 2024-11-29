@@ -15,7 +15,7 @@ public class TelaPesquisa extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         this.setAlwaysOnTop(true);
         
-        painelPrincipal2.setLayout(new BoxLayout(painelPrincipal2, BoxLayout.Y_AXIS));  // Organiza os painéis em coluna
+        this.painelPrincipal2.setLayout(new BoxLayout(this.painelPrincipal2, BoxLayout.Y_AXIS));  // Organiza os painéis em coluna
         
         ScrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         ScrollPane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -125,8 +125,8 @@ public class TelaPesquisa extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        GerenciadorDeTarefas gerenciar = new GerenciadorDeTarefas(jplBotoes, painelPrincipal2);
-        gerenciar.pesquisar(txtPesquisa.getText(), painelPrincipal2);
+        GerenciadorDeTarefas gerenciar = new GerenciadorDeTarefas(jplBotoes, this.painelPrincipal2);
+        gerenciar.pesquisar(txtPesquisa.getText(), this.painelPrincipal2);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
