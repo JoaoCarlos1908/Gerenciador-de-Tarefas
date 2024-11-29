@@ -1,5 +1,7 @@
 package Classes;
 
+import Telas.PainelPesquisa;
+import static Telas.TelaPrincipal.org;
 import Telas.ViewTarefa;
 import Telas.btnInicial;
 import Telas.btnVisualizar;
@@ -7,6 +9,8 @@ import Telas.editarVisualizar;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -286,10 +290,73 @@ public class GerenciadorDeTarefas {
         this.listarTarefas();
     }
     
-    public ArrayList<Tarefa> reorganizarTarefas(){
-        return null;
+    public void reorganizarTarefas(){
+        if(org >= 4){
+            org = 0;
+        }
+        ArrayList<Tarefa> tarefas = new ArrayList<>();
+        TarefaDAO daoTarefa = new TarefaDAO();
+        tarefas = daoTarefa.listarTarefas();
+        // Verifica o critério atual e alterna
+        switch (org) {
+            case 0:  // Ordena por prioridade (usando Color diretamente)
+                Collections.sort(tarefas, Comparator.comparing(t -> {
+                    Color cor = t.getPrioridade();
+                    return cor.getRed() * 256 * 256 + cor.getGreen() * 256 + cor.getBlue();
+                }));
+
+            case 1: // Ordena por título em ordem alfabética
+                Collections.sort(tarefas, Comparator.comparing(Tarefa::getTitulo, String.CASE_INSENSITIVE_ORDER));
+                break;
+
+            case 2: // Ordena por ID em ordem crescente
+                Collections.sort(tarefas, Comparator.comparingInt(Tarefa::getId));
+                break;
+
+            case 3: // Ordena por ID em ordem decrescente
+                Collections.sort(tarefas, (t1, t2) -> Integer.compare(t2.getId(), t1.getId()));
+                break;
+
+            default:
+                break;
+        }
+        org++;
+        this.listarTarefas(tarefas);
     }
     
-    public void pesquisar(String text, JPanel tarefaP) {}
-    public void listarTarefasPesquisa(String text, JPanel tarefaP){}
+    public void pesquisar(String text, JPanel tarefaP) {
+        TarefaDAO daoTarefa = new TarefaDAO();
+        ArrayList<Tarefa> tarefas = new ArrayList<>();
+        tarefas = daoTarefa.buscarTarefasPorTexto(text);
+        
+        // Limpa os componentes existentes no painel antes de adicionar novos
+        tarefaP.removeAll();
+
+        if (tarefas.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Nenhuma tarefa encontrada para o texto: " + text);
+            return;
+        }
+
+        for (Tarefa tarefa : tarefas) {
+            PainelPesquisa JPesquisa = new PainelPesquisa();
+            JPesquisa.setTxtTitulo(tarefa.getTitulo());
+            JPesquisa.setDescricao(tarefa.getDescricao());
+            JPesquisa.setdata(tarefa.getPrazo());
+            JPesquisa.setPrioridade(tarefa.getPrioridade());
+
+            // Adiciona o painel personalizado ao painel principal
+            tarefaP.add(JPesquisa);
+        }
+        // Atualiza o painel após o loop
+        tarefaP.revalidate();
+        tarefaP.repaint();
+
+        // Mensagem de sucesso opcional
+        //JOptionPane.showMessageDialog(null, "Tarefas listadas com sucesso!");
+    }
+    
+    public void listarTarefasPesquisa(String text, JPanel tarefaP) {
+        
+    }
+
 }

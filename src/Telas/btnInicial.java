@@ -79,7 +79,7 @@ public class btnInicial extends javax.swing.JPanel {
     }//GEN-LAST:event_btnPesquisarActionPerformed
 
     private void btnOrdemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdemActionPerformed
-        gerenciarTarefas.listarTarefas(gerenciarTarefas.reorganizarTarefas());
+        gerenciarTarefas.reorganizarTarefas();
     }//GEN-LAST:event_btnOrdemActionPerformed
 
     private void btnAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdicionarActionPerformed

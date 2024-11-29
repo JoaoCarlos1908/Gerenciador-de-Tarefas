@@ -137,36 +137,47 @@ public class TarefaDAO {
         return tarefas;
     }
     
-    public ArrayList<Tarefa> buscarTarefasPorTexto(String textoPesquisa){
+    public ArrayList<Tarefa> buscarTarefasPorTexto(String textoPesquisa) {
         ArrayList<Tarefa> tarefas = new ArrayList<>();
         String sql = "SELECT * FROM tarefas WHERE titulo LIKE ? OR descricao LIKE ?";
         con = ConnectionTarefas.getConnection();
+
+        if (con == null) {
+            System.err.println("Erro ao conectar ao banco de dados.");
+            return tarefas; // Retorna uma lista vazia
+        }
+
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            // Adiciona os parâmetros com curinga para busca aproximada
             String textoBusca = "%" + textoPesquisa + "%";
             stmt.setString(1, textoBusca);
             stmt.setString(2, textoBusca);
 
-            // Executa a consulta
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    // Criar objeto Tarefa e popular com dados do banco
                     Tarefa tarefa = new Tarefa();
                     tarefa.setId(rs.getInt("id"));
                     tarefa.setTitulo(rs.getString("titulo"));
                     tarefa.setDescricao(rs.getString("descricao"));
-                    tarefa.setPrioridade(Color.decode(rs.getString("prioridade")));
+
+                    // Tratamento do campo prioridade
+                    String corPrioridade = rs.getString("prioridade");
+                    if (corPrioridade != null && corPrioridade.matches("#[0-9A-Fa-f]{6}")) {
+                        tarefa.setPrioridade(Color.decode(corPrioridade));
+                    } else {
+                        tarefa.setPrioridade(Color.GRAY); // Cor padrão
+                    }
                     tarefa.setPrazo(rs.getString("prazo"));
                     tarefa.setConcluido(rs.getBoolean("concluido"));
-
-                    // Adiciona a tarefa à lista
                     tarefas.add(tarefa);
                 }
             }
         } catch (Exception e) {
+            System.err.println("Erro ao buscar tarefas: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            ConnectionTarefas.closerConnection(con, stmt, rs);
         }
-
         return tarefas;
     }
+
 }

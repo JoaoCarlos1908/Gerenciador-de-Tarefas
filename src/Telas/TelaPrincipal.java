@@ -8,6 +8,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         
     btnInicial bt;
     GerenciadorDeTarefas gerenciarTarefas;
+    public static int org = 0;
     
     public TelaPrincipal() {
         initComponents();
